@@ -1,27 +1,33 @@
 import Link from "next/link";
+import fs from "fs/promises";
+import path from "path";
 
-const topics = [
-  { slug: "ai-basics", title: "AI 基础" },
-  { slug: "machine-learning", title: "机器学习" },
-  // 可以根据需要添加更多主题
-];
+async function getTopics(): Promise<string[]> {
+  const topicsDir = path.join(process.cwd(), "app/topics");
+  const entries = await fs.readdir(topicsDir, { withFileTypes: true });
+  return entries
+    .filter((entry) => entry.isDirectory() && entry.name !== "[slug]")
+    .map((dir) => dir.name);
+}
 
-export default function Navigation() {
+export default async function Navigation() {
+  const topics = await getTopics();
+
   return (
-    <nav className="bg-gray-100 p-4">
+    <nav className="bg-gray-900 p-4">
       <ul className="flex space-x-4">
         <li>
           <Link href="/" className="text-blue-500 hover:underline">
-            首页
+            home
           </Link>
         </li>
         {topics.map((topic) => (
-          <li key={topic.slug}>
+          <li key={topic}>
             <Link
-              href={`/topics/${topic.slug}`}
+              href={`/topics/${topic}`}
               className="text-blue-500 hover:underline"
             >
-              {topic.title}
+              {topic.replace(/-/g, " ")}
             </Link>
           </li>
         ))}
